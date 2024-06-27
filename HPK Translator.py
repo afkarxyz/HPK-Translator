@@ -69,9 +69,16 @@ def update_character_counts(event=None):
             textbox.insert(ctk.END, text)
         label.configure(text=f"{len(text)}/{MAX_CHARS}")
 
-def copy_to_clipboard(textbox):
+def copy_to_clipboard(textbox, copy_button):
     app.clipboard_clear()
     app.clipboard_append(textbox.get("1.0", "end-1c"))
+    
+    # Change button text to "Copied"
+    original_text = copy_button.cget("text")
+    copy_button.configure(text="Copied")
+    
+    # Schedule the button text to change back after 2 seconds
+    app.after(2000, lambda: copy_button.configure(text=original_text))
 
 def reset_input():
     source_textbox.delete("1.0", ctk.END)
@@ -141,7 +148,7 @@ def create_language_section(label_text, lang_code):
     char_count_label = ctk.CTkLabel(frame, text=f"0/{MAX_CHARS}", width=70)  # Set a fixed width
     char_count_label.pack(side='left', padx=10, pady=10)
 
-    copy_button = ctk.CTkButton(frame, text="Copy", command=lambda: copy_to_clipboard(textbox), width=70)  # Set a fixed width
+    copy_button = ctk.CTkButton(frame, text="Copy", command=lambda: copy_to_clipboard(textbox, copy_button), width=70)
     copy_button.pack(side='left', padx=10, pady=10)
 
     return textbox, char_count_label
