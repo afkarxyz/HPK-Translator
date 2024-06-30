@@ -11,6 +11,10 @@ app = ctk.CTk()
 app.geometry("1450x715")
 app.title("HPK Translator")
 
+# Set custom icon
+icon_path = os.path.join(os.path.dirname(__file__), "translate.ico")
+app.iconbitmap(icon_path)
+
 MAX_CHARS = 100
 
 # Custom color for the translate button
