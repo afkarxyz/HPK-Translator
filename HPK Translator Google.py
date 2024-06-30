@@ -1,15 +1,15 @@
 import os
 import customtkinter as ctk
-from deep_translator import GoogleTranslator
+from googletrans import Translator
 from PIL import Image
 
-# Inisialisasi aplikasi
+# Initialize application
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")
 
 app = ctk.CTk()
 app.geometry("1450x715")
-app.title("HPK Translator")
+app.title("HPK Translator (Google)")
 
 # Set custom icon
 icon_path = os.path.join(os.path.dirname(__file__), "translate.ico")
@@ -21,11 +21,16 @@ MAX_CHARS = 100
 TRANSLATE_BUTTON_COLOR = "#1f8b4c"  # A shade of green
 TRANSLATE_BUTTON_HOVER_COLOR = "#176839"  # A darker shade of green for hover effect
 
+# Initialize Google translator
+translator = Translator()
+
 def limit_chars(text):
     return text[:MAX_CHARS]
 
 def translate_text():
     source_text = source_textbox.get("1.0", "end-1c")
+    if source_text == "Input Text...":
+        return
     translations = {
         'ar': arab_textbox,
         'nl': belanda_textbox,
@@ -39,14 +44,21 @@ def translate_text():
         'es': spanyol_textbox
     }
     for lang, textbox in translations.items():
-        translated_text = GoogleTranslator(source='auto', target=lang).translate(source_text)
-        translated_text = limit_chars(translated_text)
-        textbox.delete("1.0", ctk.END)
-        textbox.insert(ctk.END, translated_text)
+        try:
+            result = translator.translate(source_text, dest=lang)
+            translated_text = limit_chars(result.text)
+            textbox.delete("1.0", ctk.END)
+            textbox.insert(ctk.END, translated_text)
+        except Exception as e:
+            textbox.delete("1.0", ctk.END)
+            textbox.insert(ctk.END, f"Error: {str(e)}")
     update_character_counts()
 
 def update_character_counts(event=None):
     input_text = source_textbox.get("1.0", "end-1c")
+    if input_text == "Input Text...":
+        input_char_count_label.configure(text=f"0/{MAX_CHARS}")
+        return
     if len(input_text) > MAX_CHARS:
         input_text = limit_chars(input_text)
         source_textbox.delete("1.0", ctk.END)
@@ -86,35 +98,46 @@ def copy_to_clipboard(textbox, copy_button):
 
 def reset_input():
     source_textbox.delete("1.0", ctk.END)
+    source_textbox.insert("1.0", "Input Text...")
     update_character_counts()
 
 RESET_BUTTON_COLOR = "#e74c3c"
 RESET_BUTTON_HOVER_COLOR = "#c0392b"
 
 def reset_all_text():
-    source_textbox.delete("1.0", ctk.END)
+    reset_input()
     for textbox in [arab_textbox, belanda_textbox, inggris_textbox, indonesia_textbox, 
                     italia_textbox, jepang_textbox, jerman_textbox, prancis_textbox, 
                     rusia_textbox, spanyol_textbox]:
         textbox.delete("1.0", ctk.END)
     update_character_counts()
 
-# Komponen GUI untuk input
-source_label = ctk.CTkLabel(app, text="Input Text")
-source_label.pack(pady=(10, 0))
-
+# GUI components for input
 source_frame = ctk.CTkFrame(app)
 source_frame.pack(padx=10, pady=5, fill='x')
 
 # Increased the width of the reset button
 reset_button = ctk.CTkButton(source_frame, text="Reset", command=reset_all_text, 
                              fg_color=RESET_BUTTON_COLOR, hover_color=RESET_BUTTON_HOVER_COLOR,
-                             width=105)  # Increased width from 70 to 120
+                             width=105)
 reset_button.pack(side='left', padx=10, pady=10)
 
 source_textbox = ctk.CTkTextbox(source_frame, height=30)
 source_textbox.pack(side='left', padx=10, pady=10, fill='x', expand=True)
+source_textbox.insert("1.0", "Input Text...")
+source_textbox.bind("<FocusIn>", lambda event: on_entry_click(event, source_textbox))
+source_textbox.bind("<FocusOut>", lambda event: on_focusout(event, source_textbox))
 source_textbox.bind("<KeyRelease>", update_character_counts)
+
+def on_entry_click(event, textbox):
+    if textbox.get("1.0", "end-1c") == "Input Text...":
+        textbox.delete("1.0", ctk.END)
+        textbox.configure(text_color=("black", "white"))  # Change text color to default
+
+def on_focusout(event, textbox):
+    if textbox.get("1.0", "end-1c") == "":
+        textbox.insert("1.0", "Input Text...")
+        textbox.configure(text_color="gray")  # Change text color to gray
 
 # Green translate button with hover effect
 translate_button = ctk.CTkButton(source_frame, text="Translate", command=translate_text, 
@@ -157,7 +180,7 @@ def create_language_section(label_text, lang_code):
 
     return textbox, char_count_label
 
-# Membuat bagian untuk setiap bahasa (dalam urutan abjad berdasarkan nama bahasa dalam Bahasa Indonesia)
+# Create sections for each language (in alphabetical order based on language names in Indonesian)
 arab_textbox, arab_char_count_label = create_language_section("Arab", 'ar')
 belanda_textbox, belanda_char_count_label = create_language_section("Belanda", 'nl')
 inggris_textbox, inggris_char_count_label = create_language_section("Inggris", 'en')
@@ -169,5 +192,5 @@ prancis_textbox, prancis_char_count_label = create_language_section("Prancis", '
 rusia_textbox, rusia_char_count_label = create_language_section("Rusia", 'ru')
 spanyol_textbox, spanyol_char_count_label = create_language_section("Spanyol", 'es')
 
-# Menjalankan aplikasi
+# Run the application
 app.mainloop()
