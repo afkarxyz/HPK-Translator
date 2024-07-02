@@ -2,11 +2,13 @@
 
 **HPK Translator** is a software designed to translate YouTube video titles into multiple languages, with a focus on High Payment Keyword (HPK) countries. It is a valuable tool for content creators who want to reach a wider audience and maximize their earning potential.
 
-**Google Translate**
+## Google Translate
 
 ![image](https://github.com/afkarxyz/HPK-Translator/assets/173781715/d6cac52b-6995-47aa-93a2-e0700b2e3cf4)
 
-**DeepL**
+## DeepL
+
+DeepL requires an [API key,](https://www.deepl.com/en/pro-api?cta=header-pro-api) you can register for free with a limit of 500,000 characters/month.
 
 ![image](https://github.com/afkarxyz/HPK-Translator/assets/173781715/11b88f91-d1cd-4a16-aef8-d5127638f3ce)
 
